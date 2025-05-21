@@ -6,9 +6,6 @@ const bcrypt = require("bcrypt");
 
 router.post("/Register", async (req, res, next) => {
   try {
-    // parameters exists
-    // valid parameters
-    // username exists
     let user_details = {
       username: req.body.username,
       firstname: req.body.firstname,
@@ -16,7 +13,6 @@ router.post("/Register", async (req, res, next) => {
       country: req.body.country,
       password: req.body.password,
       email: req.body.email,
-      profilePic: req.body.profilePic
     }
     let users = [];
     users = await DButils.execQuery("SELECT username from users");
@@ -31,14 +27,18 @@ router.post("/Register", async (req, res, next) => {
     );
 
     await DButils.execQuery(
-      `INSERT INTO users (username, firstname, lastname, country, password, email, profilePic) VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
-      '${user_details.country}', '${hash_password}', '${user_details.email}', '${user_details.profilePic}')`
+      `INSERT INTO users (username, firstname, lastname, country, password, email) VALUES ('${user_details.username}', '${user_details.firstname}', '${user_details.lastname}',
+      '${user_details.country}', '${hash_password}', '${user_details.email}')`
     );
+
+    
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
     next(error);
   }
 });
+
+
 
 router.post("/Login", async (req, res, next) => {
   try {
@@ -59,18 +59,19 @@ router.post("/Login", async (req, res, next) => {
     }
 
     // Set cookie
-    req.session.user_id = user.user_id;
-    console.log("session user_id login: " + req.session.user_id);
+    req.session.username = user.username;
+    console.log("session username login: " + req.session.username);
 
     // return cookie
     res.status(200).send({ message: "login succeeded " , success: true });
   } catch (error) {
+    console.log("error in login: " + error);
     next(error);
   }
 });
 
 router.post("/Logout", function (req, res) {
-  console.log("session user_id Logout: " + req.session.user_id);
+  console.log("session username Logout: " + req.session.username);
   req.session.reset(); // reset the session info --> send cookie when  req.session == undefined!!
   res.send({ success: true, message: "logout succeeded" });
 });
