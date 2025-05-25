@@ -74,4 +74,17 @@ router.get("/last-search", (req, res) => {
   res.send({ lastSearch });
 });
 
+
+router.post('/myrecipes', async (req,res,next) => {
+  try{
+    const username = req.session.username;
+    const recipe = req.body.recipe;
+    await user_utils.addNewRecipe(username,recipe)
+    res.status(200).send("The Recipe successfully saved as myrecipe table");
+    } catch(error){
+    next(error);
+  }
+});
+
+
 module.exports = router;

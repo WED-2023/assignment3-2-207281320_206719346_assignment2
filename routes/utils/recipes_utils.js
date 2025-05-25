@@ -79,6 +79,11 @@ async function getRandomRecipesPreview(number = 3) {
     // Use your utility function to get full recipe details
     return await getRecipesPreview(recipeArray);
   }
+
+
+
+
+exports.createRecipe = createRecipe;
   
 
 exports.getRandomRecipesPreview = getRandomRecipesPreview;
