@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: grandma-mysql
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DBpassword}
+      MYSQL_DATABASE: ${database}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - grandma-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: grandma-backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    env_file:
+      - .env
+    networks:
+      - grandma-network
+
+volumes:
+  mysql_data:
+
+networks:
+  grandma-network:
