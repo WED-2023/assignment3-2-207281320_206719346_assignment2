@@ -50,8 +50,23 @@ app.get("/", function (req, res) {
 
 /* TODO: Delete this cors config */
 /* cors - to enable cross-origin requests */
+const allowedOrigins = new Set([
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
+  "http://localhost:8081",
+  "http://127.0.0.1:8081",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://192.168.0.112:8080",
+]);
+
 const corsConfig = {
-  origin: "http://localhost:8080",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., curl, mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
   credentials: true,
 };
 

@@ -1,11 +1,9 @@
 var express = require("express");
 var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
+const { mockRandomRecipes } = require("../mock/mockRandomRecipes.js");
 
 router.get("/", (req, res) => res.send("im here"));
-
-
-
 
 router.get("/search", async (req, res, next) => {
   console.log("searching for recipes");
@@ -35,11 +33,10 @@ router.get("/random", async (req, res, next) => {
     const randomRecipes = await recipes_utils.getRandomRecipesPreview(number);
     res.send(randomRecipes);
   } catch (error) {
+    res.send(mockRandomRecipes); // TODO: call mock data instead of spoonacular for development
     next(error);
   }
 });
-
-
 
 /**
  * This path returns a full details of a recipe by its id
@@ -53,8 +50,5 @@ router.get("/:recipeId", async (req, res, next) => {
     next(error);
   }
 });
-
-
-
 
 module.exports = router;
