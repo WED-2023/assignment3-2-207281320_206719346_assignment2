@@ -5,9 +5,9 @@ const mockRandomRecipes = [
     readyInMinutes: 45,
     image: "https://img.spoonacular.com/recipes/641889-556x370.jpg",
     popularity: 2,
-    vegan: false,
-    vegetarian: false,
-    glutenFree: false,
+    vegan: true,
+    vegetarian: true,
+    glutenFree: true,
     analyzedInstructions: [
       {
         name: "",
