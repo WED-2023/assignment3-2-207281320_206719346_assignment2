@@ -47,6 +47,7 @@ router.get("/:recipeId", async (req, res, next) => {
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
     res.send(recipe);
   } catch (error) {
+    res.send(mockRandomRecipes[0]); // TODO: call mock data instead of spoonacular for development
     next(error);
   }
 });
