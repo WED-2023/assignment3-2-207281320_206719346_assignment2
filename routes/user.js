@@ -3,10 +3,11 @@ var router = express.Router();
 const DButils = require("./utils/DButils");
 const user_utils = require("./utils/user_utils");
 const recipe_utils = require("./utils/recipes_utils");
+const axios = require("axios"); // Added axios for direct API calls
 
 router.use(async function (req, res, next) {
-  // Skip authentication for recipe routes - we'll get username from request body/query
-  if (req.path === "/myrecipes") {
+  // Skip authentication for recipe routes and favorites routes - we'll get username from request body/query
+  if (req.path === "/myrecipes" || req.path.startsWith("/favorites")) {
     next();
     return;
   }
@@ -35,10 +36,16 @@ router.use(async function (req, res, next) {
  */
 router.post("/favorites", async (req, res, next) => {
   try {
-    const user_id = req.session.username;
-    console.log(user_id);
+    const username = req.body.username || req.session?.username;
     const recipe_id = req.body.recipeId;
-    await user_utils.markAsFavorite(user_id, recipe_id);
+
+    if (!username) {
+      return res
+        .status(401)
+        .send({ message: "Username is required", success: false });
+    }
+
+    await user_utils.markAsFavorite(username, recipe_id);
     res.status(200).send("The Recipe successfully saved as favorite");
   } catch (error) {
     next(error);
@@ -50,36 +57,27 @@ router.post("/favorites", async (req, res, next) => {
  */
 router.get("/favorites", async (req, res, next) => {
   try {
-    const username = req.session.username;
+    const username = req.query.username || req.session?.username;
 
     if (!username) {
       return res
         .status(400)
         .send({ message: "username is required", success: false });
     }
+
     const recipes_id = await user_utils.getFavoriteRecipes(username);
+
     if (recipes_id.length === 0) {
-      console.log("No favorites");
       return res.status(404).send("No favorites");
     }
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+
+    // Format recipe IDs to match what getRecipesPreview expects
+    let recipes_id_array = recipes_id.map((element) => ({
+      recipeId: element.recipe_id,
+    }));
+
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);
     res.status(200).send(results);
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * This path removes a recipe from the favorites list of the logged-in user
- */
-router.delete("/favorites/:recipeId", async (req, res, next) => {
-  try {
-    const username = req.session.username;
-    const recipe_id = req.params.recipeId;
-    await user_utils.removeFromFavorite(username, recipe_id);
-    res.status(200).send("The Recipe successfully removed from favorites");
   } catch (error) {
     next(error);
   }
@@ -90,8 +88,15 @@ router.delete("/favorites/:recipeId", async (req, res, next) => {
  */
 router.get("/favorites/:recipeId", async (req, res, next) => {
   try {
-    const username = req.session.username;
+    const username = req.query.username || req.session?.username;
     const recipe_id = req.params.recipeId;
+
+    if (!username) {
+      return res
+        .status(401)
+        .send({ message: "Username is required", success: false });
+    }
+
     const isFavorited = await user_utils.isRecipeFavorited(username, recipe_id);
     res.status(200).json({ isFavorited });
   } catch (error) {
