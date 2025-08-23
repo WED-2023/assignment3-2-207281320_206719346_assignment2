@@ -13,12 +13,16 @@ router.post("/Register", async (req, res, next) => {
       country: req.body.country,
       password: req.body.password,
       email: req.body.email,
-    }
+    };
     let users = [];
     users = await DButils.execQuery("SELECT username from users");
 
-    if (users.find((x) => x.username === user_details.username))
-      throw { status: 409, message: "Username taken" };
+    if (users.find((x) => x.username === user_details.username)) {
+      console.log("Duplicate username detected:", user_details.username);
+      return res
+        .status(409)
+        .send({ message: "Username taken", success: false });
+    }
 
     // add the new username
     let hash_password = bcrypt.hashSync(
@@ -31,14 +35,11 @@ router.post("/Register", async (req, res, next) => {
       '${user_details.country}', '${hash_password}', '${user_details.email}')`
     );
 
-    
     res.status(201).send({ message: "user created", success: true });
   } catch (error) {
     next(error);
   }
 });
-
-
 
 router.post("/Login", async (req, res, next) => {
   try {
@@ -63,7 +64,7 @@ router.post("/Login", async (req, res, next) => {
     console.log("session username login: " + req.session.username);
 
     // return cookie
-    res.status(200).send({ message: "login succeeded " , success: true });
+    res.status(200).send({ message: "login succeeded ", success: true });
   } catch (error) {
     console.log("error in login: " + error);
     next(error);
