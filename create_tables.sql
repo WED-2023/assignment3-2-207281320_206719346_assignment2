@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS myrecipes (
   ingredients TEXT,
   instructions TEXT,
   analyzedInstructions TEXT,
+  image VARCHAR(500),
   vegan TINYINT(1),
   vegetarian TINYINT(1),
   glutenFree TINYINT(1),

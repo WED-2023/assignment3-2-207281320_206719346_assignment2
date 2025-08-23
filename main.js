@@ -19,6 +19,9 @@ app.use(
     activeDuration: 1000 * 60 * 5, // if expiresIn < activeDuration,
     cookie: {
       httpOnly: false,
+      secure: false, // set to true if using https
+      sameSite: "lax",
+      path: "/",
     },
     //the session will be extended by activeDuration milliseconds
   })
@@ -103,6 +106,64 @@ app.get("/alive", (req, res) => res.send("I'm alive"));
 app.use("/users", user);
 app.use("/recipes", recipes);
 app.use("/", auth);
+
+app.post("/simple/myrecipes", async (req, res) => {
+  try {
+    const username = req.body.username;
+    const recipe = req.body.recipe;
+
+    if (!username) {
+      return res.status(400).send({ message: "Username is required" });
+    }
+
+    const user_utils = require("./routes/utils/user_utils");
+    await user_utils.addNewRecipe(username, recipe);
+    res.status(200).send("The Recipe successfully saved as myrecipe table");
+  } catch (error) {
+    console.error("Error creating recipe:", error);
+    res.status(500).send({ message: "Internal server error", success: false });
+  }
+});
+
+app.get("/simple/myrecipes", async (req, res) => {
+  try {
+    const username = req.query.username;
+
+    if (!username) {
+      return res.status(400).send({ message: "Username is required" });
+    }
+
+    const user_utils = require("./routes/utils/user_utils");
+    const recipes = await user_utils.getMyRecipes(username);
+    res.status(200).send(recipes);
+  } catch (error) {
+    console.error("Error getting recipes:", error);
+    res.status(500).send({ message: "Internal server error", success: false });
+  }
+});
+
+app.get("/simple/myrecipes/:recipeId", async (req, res) => {
+  try {
+    const username = req.query.username;
+    const recipeId = req.params.recipeId;
+
+    if (!username) {
+      return res.status(400).send({ message: "Username is required" });
+    }
+
+    const user_utils = require("./routes/utils/user_utils");
+    const recipe = await user_utils.getMyRecipeById(username, recipeId);
+
+    if (!recipe) {
+      return res.status(404).send({ message: "Recipe not found" });
+    }
+
+    res.status(200).send(recipe);
+  } catch (error) {
+    console.error("Error getting recipe:", error);
+    res.status(500).send({ message: "Internal server error", success: false });
+  }
+});
 
 // Default router
 app.use(function (err, req, res, next) {
