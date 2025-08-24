@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS myrecipes (
   summary TEXT,
   readyInMinutes INT,
   servings INT,
-  ingredients TEXT,
+  ingredients JSON,
   instructions TEXT,
   analyzedInstructions TEXT,
   image VARCHAR(500),

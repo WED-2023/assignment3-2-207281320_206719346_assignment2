@@ -35,6 +35,7 @@ async function addNewRecipe(username, new_recipe) {
   const servings = new_recipe.servings;
   const image = new_recipe.image || "";
 
+  // Store ingredients as JSON with amount and name structure
   const ingredients = JSON.stringify(new_recipe.ingredients);
   const instructions = new_recipe.instructions;
   const analyzedInstructions = JSON.stringify(
@@ -71,15 +72,31 @@ async function getMyRecipes(username) {
     let ingredients = [];
     let analyzedInstructions = [];
 
+    // Parse ingredients from JSON string
     try {
-      ingredients = JSON.parse(recipe.ingredients || "[]");
+      if (typeof recipe.ingredients === "string") {
+        ingredients = JSON.parse(recipe.ingredients || "[]");
+      } else if (recipe.ingredients) {
+        ingredients = recipe.ingredients;
+      } else {
+        ingredients = [];
+      }
     } catch (e) {
+      console.error("Error parsing ingredients:", e);
       ingredients = [];
     }
 
+    // Parse analyzedInstructions from JSON string
     try {
-      analyzedInstructions = JSON.parse(recipe.analyzedInstructions || "[]");
+      if (typeof recipe.analyzedInstructions === "string") {
+        analyzedInstructions = JSON.parse(recipe.analyzedInstructions || "[]");
+      } else if (recipe.analyzedInstructions) {
+        analyzedInstructions = recipe.analyzedInstructions;
+      } else {
+        analyzedInstructions = [];
+      }
     } catch (e) {
+      console.error("Error parsing analyzedInstructions:", e);
       analyzedInstructions = [];
     }
 
@@ -109,14 +126,24 @@ async function getMyRecipeById(username, recipeId) {
   let analyzedInstructions = [];
 
   try {
-    ingredients = JSON.parse(recipe.ingredients || "[]");
+    if (typeof recipe.ingredients === "string") {
+      ingredients = JSON.parse(recipe.ingredients || "[]");
+    } else if (recipe.ingredients) {
+      ingredients = recipe.ingredients;
+    }
   } catch (e) {
+    console.error("Error parsing ingredients:", e);
     ingredients = [];
   }
 
   try {
-    analyzedInstructions = JSON.parse(recipe.analyzedInstructions || "[]");
+    if (typeof recipe.analyzedInstructions === "string") {
+      analyzedInstructions = JSON.parse(recipe.analyzedInstructions || "[]");
+    } else if (recipe.analyzedInstructions) {
+      analyzedInstructions = recipe.analyzedInstructions;
+    }
   } catch (e) {
+    console.error("Error parsing analyzedInstructions:", e);
     analyzedInstructions = [];
   }
 

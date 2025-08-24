@@ -8,6 +8,12 @@ const config = {
   password: process.env.DBpassword,
   database: process.env.database,
   // database:"mydb"
+  typeCast: function (field, next) {
+    if (field.type === "JSON") {
+      return field.string();
+    }
+    return next();
+  },
 };
 const pool = new mysql.createPool(config);
 
