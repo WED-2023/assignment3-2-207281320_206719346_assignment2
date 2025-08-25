@@ -19,42 +19,52 @@ async function getRecipeInformation(recipe_id) {
 }
 
 async function getRecipeDetails(recipe_id) {
-  let recipe_info = await getRecipeInformation(recipe_id);
-  let {
-    id,
-    title,
-    readyInMinutes,
-    image,
-    aggregateLikes,
-    vegan,
-    vegetarian,
-    glutenFree,
-    analyzedInstructions,
-    extendedIngredients,
-  } = recipe_info.data;
+  try {
+    let recipe_info = await getRecipeInformation(recipe_id);
+    let {
+      id,
+      title,
+      readyInMinutes,
+      image,
+      aggregateLikes,
+      vegan,
+      vegetarian,
+      glutenFree,
+      analyzedInstructions,
+      extendedIngredients,
+    } = recipe_info.data;
 
-  return {
-    id: id,
-    title: title,
-    readyInMinutes: readyInMinutes,
-    image: image,
-    popularity: aggregateLikes,
-    vegan: vegan,
-    vegetarian: vegetarian,
-    glutenFree: glutenFree,
-    analyzedInstructions: analyzedInstructions || [], // Provide default empty array if undefined
-    extendedIngredients: extendedIngredients || [],
-  };
+    return {
+      id: id,
+      title: title,
+      readyInMinutes: readyInMinutes,
+      image: image,
+      popularity: aggregateLikes,
+      vegan: vegan,
+      vegetarian: vegetarian,
+      glutenFree: glutenFree,
+      analyzedInstructions: analyzedInstructions || [], // Provide default empty array if undefined
+      extendedIngredients: extendedIngredients || [],
+    };
+  } catch (error) {
+    console.error(`Error getting recipe details for ID ${recipe_id}:`, error.message);
+    throw error;
+  }
 }
 
 async function getRecipesPreview(recipe_array) {
   const results = [];
   // Use a for loop to iterate over each recipe ID in the recipe_array
   for (let recipe_id of recipe_array) {
-    // Fetch the recipe details for each recipe ID
-    const recipe_details = await getRecipeDetails(recipe_id.recipeId);
-    // Push the fetched details to the results array
-    results.push(recipe_details);
+    try {
+      // Fetch the recipe details for each recipe ID
+      const recipe_details = await getRecipeDetails(recipe_id.recipeId);
+      // Push the fetched details to the results array
+      results.push(recipe_details);
+    } catch (error) {
+      console.error(`Error fetching recipe ${recipe_id.recipeId}:`, error.message);
+      // Continue with other recipes even if one fails
+    }
   }
   // Return the array containing all the recipe previews
   return results;

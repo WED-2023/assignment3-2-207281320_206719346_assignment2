@@ -9,12 +9,12 @@ router.get("/search", async (req, res, next) => {
   console.log("searching for recipes");
   try {
     const query = req.query.query;
-    const number = req.query.number || 5; // default to 5 if not provided
+    const number = req.query.number || 5; // default
 
     if (!query) {
       return res.status(400).send({ message: "Search query is required" });
     }
-    // Save the last search in the user's session
+    // Save the last search
     if (req.session && req.session.username) {
       req.session.lastSearch = query;
     }
